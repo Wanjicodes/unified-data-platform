@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Data files (demo data is generated locally, not committed)
+data/demo/*.csv
+data/demo/*.parquet
+
+# Observability logs (generated at runtime)
+observability/lineage_log.jsonl
+observability/schema_registry.json
+
+# dbt
+transform/target/
+transform/dbt_packages/
+transform/logs/
+transform/.user.yml
+
+# Environment
+.env
+.env.*
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prefect
+.prefect/

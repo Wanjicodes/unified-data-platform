@@ -1,0 +1,71 @@
+# config/contracts.yaml
+#
+# Data contracts — validation rules per source.
+#
+# A contract defines what "good data" looks like for each source.
+# Rules run after ingestion, before transformation.
+# Contract failures are logged, counted, and routed — they do not
+# silently corrupt downstream outputs.
+#
+# severity levels:
+#   error   — blocks this source from merging into the platform
+#   warning — logged and flagged but does not block
+
+contracts:
+
+  aviation_ops:
+    - rule: not_empty
+      min_rows: 100
+      severity: error
+
+    - rule: not_null
+      column: flight_id
+      severity: error
+
+    - rule: not_null
+      column: route_id
+      severity: error
+
+    - rule: unique
+      column: flight_id
+      severity: error
+
+    - rule: not_null
+      column: scheduled_departure
+      severity: error
+
+    - rule: accepted_values
+      column: flight_status
+      values: [on_time, delayed, cancelled, diverted]
+      severity: error
+
+    - rule: min_value
+      column: departure_delay_minutes
+      value: -60
+      severity: warning
+
+    - rule: max_value
+      column: departure_delay_minutes
+      value: 1440
+      severity: warning
+
+  aviation_routes:
+    - rule: not_empty
+      min_rows: 10
+      severity: error
+
+    - rule: not_null
+      column: route_id
+      severity: error
+
+    - rule: unique
+      column: route_id
+      severity: error
+
+    - rule: not_null
+      column: origin_iata
+      severity: error
+
+    - rule: not_null
+      column: destination_iata
+      severity: error

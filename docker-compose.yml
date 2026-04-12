@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+
+  # Prefect server — pipeline orchestration UI
+  prefect-server:
+    image: prefecthq/prefect:2-latest
+    command: prefect server start --host 0.0.0.0
+    ports:
+      - "4200:4200"
+    environment:
+      - PREFECT_UI_URL=http://localhost:4200
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4200/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Platform API — metric store and lineage endpoints
+  platform-api:
+    build: .
+    command: uvicorn serving.api:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - PYTHONPATH=/app
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+
+  # Pipeline runner — one-shot execution
+  pipeline:
+    build: .
+    command: python orchestration/pipeline_dag.py --source all --mode demo
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - PYTHONPATH=/app
+      - PREFECT_API_URL=http://prefect-server:4200/api
+    profiles:
+      - run-pipeline
+    depends_on:
+      prefect-server:
+        condition: service_healthy

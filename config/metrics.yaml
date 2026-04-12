@@ -1,0 +1,83 @@
+# config/metrics.yaml
+#
+# The authoritative metric registry.
+#
+# Every KPI in the platform must be defined here.
+# Metrics referenced in reports or dashboards that do not
+# appear here are a governance violation — the API will refuse to serve them.
+#
+# Fields:
+#   name:             unique identifier (snake_case)
+#   display_name:     human-readable label
+#   owner:            team or person accountable for this definition
+#   description:      what it measures and why it matters
+#   calculation:      formula or SQL expression (human-readable)
+#   unit:             percentage | count | minutes | currency_usd | ratio
+#   refresh_cadence:  how often this should be recalculated
+#   version:          increment when the definition changes
+#   thresholds:       alert boundaries (warn / critical)
+#   tags:             for filtering and grouping
+
+metrics:
+
+  - name: on_time_performance_rate
+    display_name: On-Time Performance Rate
+    owner: operations-analytics
+    description: >
+      Percentage of flights that departed within 15 minutes of scheduled departure time.
+      Industry standard OTP definition. Excludes cancelled flights from denominator.
+    calculation: "COUNT(flights WHERE departure_delay_minutes <= 15) / COUNT(flights WHERE status != 'cancelled') * 100"
+    unit: percentage
+    refresh_cadence: daily
+    version: "1.0.0"
+    thresholds:
+      warn_below: 80.0
+      critical_below: 70.0
+    tags: [aviation, operational, kpi]
+
+  - name: average_delay_minutes
+    display_name: Average Departure Delay
+    owner: operations-analytics
+    description: >
+      Mean departure delay in minutes across all delayed flights (delay > 0).
+      Excludes on-time flights to measure severity of delays, not frequency.
+    calculation: "AVG(departure_delay_minutes) WHERE departure_delay_minutes > 0"
+    unit: minutes
+    refresh_cadence: daily
+    version: "1.0.0"
+    thresholds:
+      warn_above: 30
+      critical_above: 60
+    tags: [aviation, operational]
+
+  - name: delay_attribution_rate
+    display_name: Carrier-Caused Delay Rate
+    owner: operations-analytics
+    description: >
+      Percentage of total delay minutes attributable to carrier (airline) causes
+      vs external causes (weather, ATC, security). Used for operational accountability.
+    calculation: "SUM(carrier_delay_minutes) / SUM(total_delay_minutes) * 100"
+    unit: percentage
+    refresh_cadence: weekly
+    version: "1.0.0"
+    thresholds:
+      warn_above: 40.0
+      critical_above: 60.0
+    tags: [aviation, operational, accountability]
+
+  - name: route_coverage_completeness
+    display_name: Route Data Completeness
+    owner: data-platform
+    description: >
+      Percentage of active routes in the route master that have at least one
+      operations record in the current reporting period. A data quality metric —
+      low values indicate ingestion gaps, not operational issues.
+    calculation: "COUNT(DISTINCT route_id IN ops) / COUNT(DISTINCT route_id IN routes) * 100"
+    unit: percentage
+    refresh_cadence: daily
+    version: "1.0.0"
+    thresholds:
+      warn_below: 95.0
+      critical_below: 85.0
+    tags: [data-quality, aviation, platform]
+    notes: "If this drops below warn threshold, check aviation_ops ingestion logs first."

@@ -1,0 +1,30 @@
+# config/sources.yaml
+#
+# All data sources are defined here — not in code.
+# To add a new source: add an entry here and implement
+# a connector class that extends BaseConnector.
+# The pipeline requires no code changes.
+
+sources:
+
+  aviation_ops:
+    connector: ingestion.connectors.csv_connector.CsvConnector
+    file_path: data/demo/aviation_operations.csv
+    description: "Flight operations data — on-time performance, delay codes, route metrics"
+    schema_version: "1.2.0"
+    tags: [aviation, demo, operational]
+
+  aviation_routes:
+    connector: ingestion.connectors.csv_connector.CsvConnector
+    file_path: data/demo/aviation_routes.csv
+    description: "Route master data from OpenFlights public dataset"
+    schema_version: "1.0.0"
+    tags: [aviation, demo, reference]
+
+  # Template for adding a new source — copy and adapt:
+  # my_new_source:
+  #   connector: ingestion.connectors.api_connector.ApiConnector
+  #   base_url: https://api.example.com/v1
+  #   api_key_env: MY_API_KEY          # reads from environment variable
+  #   schema_version: "1.0.0"
+  #   tags: [energy, live]
