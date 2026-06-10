@@ -1,0 +1,26 @@
+# profiles.yml
+#
+# This file tells dbt how to connect to the data warehouse.
+# In production, this lives in ~/.dbt/profiles.yml (a global location).
+# For this project we keep it local so anyone cloning the repo can run it immediately.
+#
+# The connection details here use DuckDB — a lightweight, in-process OLAP engine.
+# DuckDB stores data in a single .duckdb file, which means:
+#   - No database server to install
+#   - No credentials to manage
+#   - The full transform layer runs in seconds
+#
+# To migrate to Snowflake, BigQuery, or Postgres later: change the 'type' and
+# add credentials. The dbt models themselves do not change. This is one of dbt's
+# most powerful features — your transformation logic is portable across warehouses.
+
+unified_data_platform:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      # The path is relative to the dbt project root
+      path: '../data/warehouse.duckdb'
+      threads: 4
+      # Optional: schemas dbt will create inside DuckDB
+      schema: main

@@ -1,0 +1,63 @@
+# models/staging/_staging.yml
+#
+# Schema and tests for staging models.
+#
+# Filename starts with underscore so it sorts to the top alphabetically
+# this is a common convention. dbt doesn't care about the filename, but
+# humans do.
+#
+# Why test in staging?
+#   - Catches issues at the layer closest to the source
+#   - Failures here pinpoint exactly which model has a problem
+#   - Tests serve as living documentation of expected data behaviour
+
+version: 2
+
+models:
+  - name: stg_aviation_operations
+    description: "Cleaned, typed flight operations data. One row per flight."
+    columns:
+      - name: flight_id
+        description: "Unique flight identifier"
+        tests:
+          - unique:
+              config:
+                severity: warn
+          - not_null:
+              config:
+                severity: warn
+      - name: ops_route_id
+        description: "Route identifier in XXX-YYY format (operations system convention)"
+        tests:
+          - not_null
+      - name: flight_status
+        description: "Operational status of the flight"
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['on_time', 'delayed', 'cancelled', 'diverted']
+              config:
+                severity: warn
+      - name: flight_date
+        tests:
+          - not_null
+
+  - name: stg_aviation_routes
+    description: "Route master data. One row per active route."
+    columns:
+      - name: routes_route_id
+        description: "Original route_id from source (XXX_YYY format)"
+        tests:
+          - unique
+          - not_null
+      - name: ops_route_id
+        description: "Normalised route_id matching ops format (XXX-YYY)"
+        tests:
+          - unique
+          - not_null
+      - name: origin_iata
+        tests:
+          - not_null
+      - name: destination_iata
+        tests:
+          - not_null

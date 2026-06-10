@@ -1,0 +1,50 @@
+# models/intermediate/_intermediate.yml
+#
+# Schema and tests for intermediate models.
+#
+# Note: intermediate models are ephemeral by default in this project,
+# meaning they have no physical table to test directly. dbt still runs
+# the column tests by compiling them into a query but the schema
+# documentation here is more about communicating intent to other engineers.
+
+version: 2
+
+models:
+  - name: int_flights_enriched
+    description: >
+      Flight operations data enriched with route master information and core business logic.
+      This is the central building block for all downstream marts.
+      One row per flight.
+    columns:
+      - name: flight_id
+        description: "Unique flight identifier carried through from staging"
+        tests:
+          - unique:
+              config:
+                severity: warn
+          - not_null:
+              config:
+                severity: warn
+      - name: route_id
+        description: "Canonical route_id format (XXX-YYY)"
+        tests:
+          - not_null
+      - name: is_on_time
+        description: >
+          Industry-standard OTP flag — true if departure_delay_minutes <= 15.
+          Null for cancelled flights (excluded from OTP calculations).
+          This is the AUTHORITATIVE definition referenced by the metric store.
+      - name: delay_severity_band
+        description: "Categorical delay band: on_time, minor_delay, significant_delay, severe_delay, cancelled"
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['on_time', 'minor_delay', 'significant_delay', 'severe_delay', 'cancelled']
+      - name: is_carrier_attributable
+        description: >
+          True if delay was caused by airline-controlled factors (carrier, aircraft_turnaround).
+          False if external (weather, atc, security). Null if no delay or unknown cause.
+      - name: is_unmapped_route
+        description: >
+          Data quality flag — true when ops data references a route_id not in the routes master.
+          Should be near-zero in healthy data; any positive count warrants investigation.

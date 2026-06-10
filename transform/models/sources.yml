@@ -1,0 +1,56 @@
+# models/sources.yml
+#
+# This declares the raw data sources dbt can read from.
+# Once declared here, models reference them with source('source_name', 'table_name')
+# rather than hardcoding paths or schema names.
+
+version: 2
+
+sources:
+  - name: raw_aviation
+    description: "Raw aviation operations data, ingested by the platform pipeline before transformation."
+    meta:
+      external_location: "../data/demo/{name}.csv"
+    tables:
+      - name: aviation_operations
+        description: "Flight-level operations data — one row per flight, including delay metrics and status."
+        columns:
+          - name: flight_id
+            description: "Unique flight identifier — composite of flight number and date."
+            tests:
+              - unique:
+                  config:
+                    severity: warn
+              - not_null:
+                  config:
+                    severity: warn
+          - name: route_id
+            description: "Origin-destination pair in 'XXX-YYY' format. Note: differs from routes master format."
+            tests:
+              - not_null:
+                  config:
+                    severity: warn
+          - name: flight_status
+            description: "Current operational status of the flight."
+            tests:
+              - accepted_values:
+                  values: ['on_time', 'delayed', 'cancelled', 'diverted']
+                  config:
+                    severity: warn
+          - name: departure_delay_minutes
+            description: "Minutes of departure delay. Negative means early departure."
+
+      - name: aviation_routes
+        description: "Route master data — reference table with one row per active route."
+        columns:
+          - name: route_id
+            description: "Route identifier in 'XXX_YYY' format. Must be reconciled with operations data."
+            tests:
+              - unique
+              - not_null
+          - name: origin_iata
+            tests:
+              - not_null
+          - name: destination_iata
+            tests:
+              - not_null

@@ -1,0 +1,58 @@
+# models/marts/_marts.yml
+#
+# Schema and tests for the mart layer.
+#
+# Mart-level tests are the most important tests in the project — these are
+# the outputs that get consumed by dashboards, APIs, and decision-makers.
+# A failure here means a number a user sees is wrong.
+
+version: 2
+
+models:
+  - name: mart_route_performance_daily
+    description: >
+      Daily route-level operational performance metrics.
+      Grain: one row per route_id per flight_date.
+      This is the authoritative source for OTP, delay, and route performance
+      metrics consumed by the platform API and downstream reporting.
+    columns:
+      - name: flight_date
+        description: "Date of operations"
+        tests:
+          - not_null
+      - name: route_id
+        description: "Canonical route identifier"
+        tests:
+          - not_null
+      - name: total_flights
+        description: "Total flights on this route on this date (including cancelled)"
+        tests:
+          - not_null
+      - name: on_time_performance_rate
+        description: >
+          On-time performance percentage. Corresponds to metric 'on_time_performance_rate'
+          registered in config/metrics.yaml v1.0.0.
+      - name: average_delay_minutes
+        description: >
+          Mean delay in minutes among delayed flights only.
+          Corresponds to metric 'average_delay_minutes' v1.0.0.
+      - name: carrier_caused_delay_rate
+        description: >
+          Percentage of attributed delays caused by airline-controlled factors.
+          Corresponds to metric 'delay_attribution_rate' v1.0.0.
+      - name: unmapped_route_flights
+        description: >
+          Data quality signal — count of flights referencing a route_id not in
+          the routes master. Should be 0 in healthy data.
+        tests:
+          - dbt_utils.accepted_range:
+              max_value: 0
+              config:
+                severity: warn
+
+    # Composite uniqueness — there should only ever be one row per route per day
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - flight_date
+            - route_id

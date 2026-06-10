@@ -5,24 +5,24 @@
 
 **A production-grade data engineering platform for hostile, fragmented, multi-source environments.**
 
-Most data engineering projects start with clean data. This one doesn't.
+Most data engineering projects start with clean data. This one does not.
 
-This platform was designed around a real operational constraint I have worked with in practice: multiple enterprise clients, each with their own source systems, inconsistent field definitions, conflicting KPI logic, and no shared data infrastructure — all requiring trusted, decision-ready outputs simultaneously, across 12 markets.
+This platform was designed around a real operational constraint I have worked with in practice: multiple enterprise clients, each with their own source systems, inconsistent field definitions, conflicting KPI logic and no shared data infrastructure all requiring trusted, decision-ready outputs simultaneously, across 12 markets.
 
-It is not a tutorial. It is not a demo. It is a reference architecture built from genuine experience structuring messy source data, standardising metric logic, and building systems that make analysis trusted, reusable and decision-ready.
+It is not a tutorial or a demo. This is a reference architecture built from genuine experience structuring messy source data, standardising metric logic, and building systems that make analysis trusted, reusable and decision-ready.
 
 ---
 
 ## The problem this solves
 
-Large organisations — in aviation, energy, fintech, and multi-market commercial operations — share a common data failure pattern:
+Large organisations particularly in aviation, healthcare, fintech, among others often face the same data problems:
 
-- **Source fragmentation**: data lives in 4–10 disconnected systems with no canonical model
-- **Definition conflicts**: the same metric means different things in different markets or teams
-- **Trust collapse**: stakeholders stop trusting reports because numbers don't reconcile
-- **Pipeline fragility**: manual fixes and workarounds become load-bearing infrastructure
+- **Fragmented source**: critical data is spread across disconnected systems with no canonical model
+- **Inconsistent definitions**: teams and markets calculate the same metrics differently
+- **Low trust in reporting**: stakeholders lose confidence when figures do not reconcile
+- **Fragile pipelines**: manual fixes gradually become part of the operating process
 
-This platform addresses all four at the architectural level — not as patches, but as first principles.
+This platform addresses these issues through a governed model, consistent metric definitions, automated reconciliation and more resilient pipelines.
 
 ---
 
@@ -145,7 +145,7 @@ cd unified-data-platform
 # Install dependencies
 pip install -r requirements.txt
 
-# Run pipeline end to end (demo mode — aviation dataset)
+# Run pipeline end to end (demo mode - aviation dataset)
 python orchestration/pipeline_dag.py --source aviation --mode demo
 
 # Start the serving API
@@ -162,9 +162,9 @@ cd transform && dbt docs generate && dbt docs serve
 
 ## Demo dataset
 
-The platform ships with a public aviation operations dataset (sourced from OpenFlights + BTS) as the default demo input. This illustrates the fragmentation problem concretely: two sources, different schemas, conflicting route identifiers, and inconsistent delay categorisation — unified by the platform into a single trusted operational view.
+The platform ships with a public aviation operations dataset (sourced from OpenFlights + BTS) as the default demo input. This illustrates the fragmentation problem concretely: two sources, different schemas, conflicting route identifiers, and inconsistent delay categorisation which is unified by the platform into a single trusted operational view.
 
-**The aviation dataset is illustrative. The architecture applies equally to:**
+**The aviation dataset is illustrative. The architecture cuts across:**
 - Energy: multi-site consumption + pricing feeds with conflicting unit definitions
 - Fintech: transaction systems with market-level rule variations
 - Healthcare: patient data across clinic systems with no shared identifier
@@ -193,6 +193,6 @@ See [`/docs/case-studies/`](docs/case-studies/) for anonymised write-ups of real
 
 I build scalable data systems, metric layers and decision infrastructure for enterprise analytics and applied data science. My work sits at the intersection of data engineering, analytics engineering and business problem-solving — structuring messy source data, designing reliable transformation workflows, improving data quality, standardising metric logic, and building systems that make analysis more trusted, reusable and decision-ready.
 
-Currently extending public proof in data engineering, analytics engineering, forecasting, experimentation and governance-minded data systems. Open to senior data engineering and analytics engineering roles in the UAE and Europe.
+Currently extending public proof in data engineering, analytics engineering, forecasting, experimentation and governance-minded data systems. 
 
 [LinkedIn](https://www.linkedin.com/in/junewanjirundungu/) · [GitHub](https://github.com/Wanjicodes)
