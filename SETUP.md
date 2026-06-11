@@ -1,7 +1,7 @@
 # Getting started on Windows
 
 This guide walks you through running the platform locally on Windows.
-No Docker required for the first run — just Python and a terminal.
+No Docker required for the first run just Python and a terminal.
 
 ---
 
@@ -16,8 +16,8 @@ No Docker required for the first run — just Python and a terminal.
 ## Step 1 — Clone the repo
 
 ```cmd
-git clone https://github.com/yourusername/unified-data-platform.git
-cd unified-data-platform
+git clone https://github.com/yourusername/tessera-data-platform.git
+cd tessera-data-platform
 ```
 
 ---

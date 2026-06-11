@@ -4,7 +4,7 @@
 # In production, this lives in ~/.dbt/profiles.yml (a global location).
 # For this project we keep it local so anyone cloning the repo can run it immediately.
 #
-# The connection details here use DuckDB — a lightweight, in-process OLAP engine.
+# The connection details here use DuckDB which is a lightweight, in-process OLAP engine.
 # DuckDB stores data in a single .duckdb file, which means:
 #   - No database server to install
 #   - No credentials to manage
@@ -12,9 +12,9 @@
 #
 # To migrate to Snowflake, BigQuery, or Postgres later: change the 'type' and
 # add credentials. The dbt models themselves do not change. This is one of dbt's
-# most powerful features — your transformation logic is portable across warehouses.
+# most powerful features where your transformation logic is portable across warehouses.
 
-unified_data_platform:
+tessera_data_platform:
   target: dev
   outputs:
     dev:

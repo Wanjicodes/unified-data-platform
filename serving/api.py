@@ -1,7 +1,7 @@
 """
 api.py
 
-FastAPI serving layer — data as a product.
+FastAPI serving layer data as a product.
 
 Exposes three endpoint groups:
   /metrics  — query the metric registry
@@ -9,8 +9,8 @@ Exposes three endpoint groups:
   /health   — pipeline and data freshness status
 
 This is what separates a data platform from a data pipeline.
-A pipeline moves data. A platform makes data queryable, auditable,
-and trustworthy — with a clear interface for consumers.
+A platform makes data queryable, auditable, trustworthy 
+and with a clear interface for consumers.
 """
 
 from fastapi import FastAPI, HTTPException, Query
@@ -24,12 +24,12 @@ from observability.lineage import LineageTracker
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="Unified Data Platform API — Wanjiru Ndung'u",
+    title="tessera — metric and lineage API",
     description=(
-        "Metric registry and lineage API for the unified data platform. "
-        "Built by Wanjiru Ndung'u — Data Engineer. "
-        "All metrics served here are registered, owned, versioned, and tested. "
-        "github.com/Wanjicodes/unified-data-platform"
+        "The serving layer of the tessera data platform. "
+        "Built by Wanjiru Ndung'u, Data Engineer. "
+        "Every metric here is registered, owned, versioned, and tested. "
+        "github.com/Wanjicodes/tessera-data-platform"
     ),
     version="1.0.0",
 )
@@ -47,7 +47,7 @@ def list_metrics(
 ):
     """
     Returns the full metric registry, or a filtered subset.
-    Every metric here is governed — it has an owner, a definition, and tests.
+    Every metric here is governed it has an owner, a definition, and tests.
     """
     if tag:
         metrics = _metric_store.list_by_tag(tag)
@@ -65,15 +65,15 @@ def list_metrics(
 @app.get("/metrics/{metric_name}", summary="Get a single metric definition")
 def get_metric(metric_name: str):
     """
-    Returns the full definition of a specific metric —
-    including owner, calculation logic, thresholds, and version.
+    Returns the full definition of a specific metric including
+    owner, calculation logic, thresholds, and version.
     """
     metric = _metric_store.get(metric_name)
     if not metric:
         raise HTTPException(
             status_code=404,
             detail=f"Metric '{metric_name}' is not registered. "
-                   f"Unregistered metrics cannot be served — add it to the metric store.",
+                   f"Unregistered metrics cannot be served then add it to the metric store.",
         )
     return metric.to_dict()
 
@@ -83,9 +83,8 @@ def get_metric(metric_name: str):
 @app.get("/lineage/{dataset_name}", summary="Trace data lineage for a dataset")
 def get_lineage(dataset_name: str):
     """
-    Returns the full lineage graph for a dataset —
-    which sources contributed to it, which transformations were applied,
-    and which downstream outputs depend on it.
+    Returns the full lineage graph for a dataset which transformations were 
+    applied and which downstream outputs depend on it.
     """
     lineage = _lineage_tracker.get_lineage(dataset_name)
     if not lineage:
@@ -101,7 +100,7 @@ def get_lineage(dataset_name: str):
 @app.get("/health", summary="Platform health check")
 def health_check():
     """
-    Returns platform health status — metric store load, lineage tracker,
+    Returns platform health status by querying metric store load, lineage tracker,
     and last pipeline run timestamp.
     """
     metric_count = len(_metric_store.list_all())
@@ -122,8 +121,8 @@ def health_check():
 def metrics_audit():
     """
     Returns metrics that are missing required fields.
-    Use this to enforce governance standards — every metric must have
-    an owner, a description, and at least one threshold defined.
+    Useful to enforce governance standards where every metric must have
+    an owner, description plus at least one threshold defined.
     """
     all_metrics = _metric_store.list_all()
     issues = []

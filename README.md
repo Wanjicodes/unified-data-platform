@@ -1,198 +1,131 @@
-# unified-data-platform
+# tessera-data-platform
 
-> Built by **Wanjiru Ndung'u** — Data Engineer  
-> [LinkedIn](https://www.linkedin.com/in/junewanjirundungu/) · [GitHub](https://github.com/Wanjicodes)
+> _Where fragmented data sources become a coherent picture._
 
-**A production-grade data engineering platform for hostile, fragmented, multi-source environments.**
-
-Most data engineering projects start with clean data. This one does not.
-
-This platform was designed around a real operational constraint I have worked with in practice: multiple enterprise clients, each with their own source systems, inconsistent field definitions, conflicting KPI logic and no shared data infrastructure all requiring trusted, decision-ready outputs simultaneously, across 12 markets.
-
-It is not a tutorial or a demo. This is a reference architecture built from genuine experience structuring messy source data, standardising metric logic, and building systems that make analysis trusted, reusable and decision-ready.
+Built by **Wanjiru Ndung'u** · Data Engineer  
+[LinkedIn](https://www.linkedin.com/in/junewanjirundungu/) · [GitHub](https://github.com/Wanjicodes)
 
 ---
 
-## The problem this solves
+## The idea
 
-Large organisations particularly in aviation, healthcare, fintech, among others often face the same data problems:
+A tessera is a single tile in a mosaic. On its own it tells you nothing. Assembled with others, it becomes a picture.
 
-- **Fragmented source**: critical data is spread across disconnected systems with no canonical model
-- **Inconsistent definitions**: teams and markets calculate the same metrics differently
-- **Low trust in reporting**: stakeholders lose confidence when figures do not reconcile
-- **Fragile pipelines**: manual fixes gradually become part of the operating process
+That is the problem this platform solves. Enterprise data does not arrive whole. It arrives as fragments from systems that do not agree with each other, with conflicting definitions and inconsistent shapes. The work is not analysis. The work is assembly.
 
-This platform addresses these issues through a governed model, consistent metric definitions, automated reconciliation and more resilient pipelines.
+`tessera` is a reference architecture for that assembly. It takes fragmented source data and produces something coherent enough to make decisions from.
 
----
+## What it does
 
-## Architecture
+Five layers, each with a single responsibility.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     INGESTION LAYER                         │
-│   Multi-source connectors · Schema registry · Raw storage   │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                    VALIDATION LAYER                         │
-│   Data contracts · Quality checks · Failure routing         │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                   TRANSFORM LAYER  (dbt)                    │
-│   Staging → Intermediate → Marts · Metric definitions       │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                     SERVING LAYER                           │
-│   FastAPI · Metric store · Lineage endpoints                │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                  OBSERVABILITY LAYER                        │
-│   Pipeline monitors · Data lineage · Alerting               │
-└─────────────────────────────────────────────────────────────┘
+**Ingestion.** Pulls data from any source through a common connector interface. Adding a new source is a config entry, not a code change.
 
-Orchestration: Prefect flows wrap all layers with scheduling,
-retry logic, and structured failure logging.
-```
+**Validation.** Runs data contracts defined in YAML. Catches source-level issues before they reach the transform layer. Contracts are configuration, not buried logic.
 
----
+**Transformation.** A dbt project structured as staging, intermediate, marts. Business rules live in one place. Metric definitions are versioned and owned.
+
+**Serving.** A FastAPI layer that exposes metrics and lineage as endpoints. Data as a product, not just a report.
+
+**Observability.** Lineage tracking, schema drift detection, pipeline health monitors. The platform watches itself.
+
+## Why this shape
+
+Most data platforms treat the data as the problem. This one treats the fragmentation as the problem.
+
+That difference shows up everywhere. The contract engine assumes sources will disagree. The metric store assumes definitions will be contested. The transformation layer separates business rules from presentation so the rules can change without rewriting outputs. Schema registries detect upstream drift before it breaks downstream models.
+
+These are not optimisations. They are the architecture.
 
 ## Stack
 
-| Layer | Technology | Why |
-|---|---|---|
-| Ingestion | Python · `httpx` · `pandas` | Modular connector pattern — swap sources without touching pipeline logic |
-| Validation | Custom data contracts · `great_expectations` | Contracts defined in YAML — validation is configuration, not code |
-| Transform | `dbt` · DuckDB | Full staging → intermediate → mart lineage with documented metric definitions |
-| Orchestration | `Prefect` | Parameterised flows, retry logic, structured failure logs |
-| Serving | `FastAPI` | Data as a product — metrics and lineage exposed as versioned API endpoints |
-| Observability | Custom monitors · structured logging | Pipeline health visible without external tooling dependencies |
-| Testing | `pytest` · dbt tests | Contract tests, pipeline unit tests, and dbt schema tests in one run |
-
----
-
-## Key design decisions
-
-See [`/docs/decisions/`](docs/decisions/) for full Architecture Decision Records.
-
-**ADR-001**: Why data contracts are defined in YAML, not enforced in code  
-**ADR-002**: Why DuckDB over PostgreSQL for local transform  
-**ADR-003**: Why Prefect over Airflow for this architecture  
-**ADR-004**: Why the metric store is separated from the reporting layer  
-
----
-
-## Project structure
-
-```
-unified-data-platform/
-│
-├── ingestion/
-│   ├── base_connector.py       # Abstract connector — all sources implement this interface
-│   ├── multi_source_loader.py  # Orchestrates parallel ingestion across N sources
-│   └── schema_registry.py      # Source schema definitions and version tracking
-│
-├── validation/
-│   ├── data_contracts.py       # Contract engine — loads YAML, runs checks, routes failures
-│   └── quality_checks.py       # Reusable check library (nulls, ranges, referential integrity)
-│
-├── transform/                  # dbt project
-│   ├── staging/                # Raw → typed, renamed, light cleaning only
-│   ├── intermediate/           # Business logic, joins, metric building blocks
-│   └── marts/                  # Decision-ready outputs by domain
-│
-├── serving/
-│   ├── api.py                  # FastAPI app — /metrics, /lineage, /health endpoints
-│   └── metric_store.py         # Metric registry with ownership, logic, and refresh cadence
-│
-├── orchestration/
-│   └── pipeline_dag.py         # Prefect flow definitions — full pipeline end to end
-│
-├── observability/
-│   ├── lineage.py              # Column-level lineage tracking
-│   └── monitors.py             # Pipeline health checks and alerting hooks
-│
-├── config/
-│   ├── sources.yaml            # Source system definitions
-│   ├── metrics.yaml            # Metric definitions — owner, logic, thresholds, cadence
-│   └── contracts.yaml          # Data contract rules per source
-│
-├── docs/
-│   ├── decisions/              # Architecture Decision Records (ADR-001 through ADR-004)
-│   └── case-studies/           # Anonymised real-world problem write-ups
-│
-├── tests/
-│   ├── test_contracts.py       # Contract validation unit tests
-│   └── test_pipeline.py        # Pipeline integration tests
-│
-├── requirements.txt
-├── docker-compose.yml
-└── README.md
-```
-
----
+| Layer | Tools |
+|---|---|
+| Ingestion | Python, modular connectors |
+| Validation | YAML data contracts, custom rule engine |
+| Transform | dbt, DuckDB locally, portable to Snowflake, BigQuery, Postgres |
+| Orchestration | Prefect |
+| Serving | FastAPI |
+| Observability | Structured logging, JSONL lineage, schema registry |
+| Testing | pytest, dbt tests, custom assertions |
+| CI | GitHub Actions |
 
 ## Quickstart
 
 ```bash
-# Clone
-git clone https://github.com/Wanjicodes/unified-data-platform
-cd unified-data-platform
+git clone https://github.com/Wanjicodes/tessera-data-platform
+cd tessera-data-platform
 
-# Install dependencies
+python -m venv venv
+.\venv\Scripts\activate   # Windows
+# source venv/bin/activate  # Mac/Linux
+
 pip install -r requirements.txt
+python data\generate_demo_data.py
 
-# Run pipeline end to end (demo mode - aviation dataset)
-python orchestration/pipeline_dag.py --source aviation --mode demo
+# Run the Python pipeline
+set PYTHONPATH=.
+python orchestration\pipeline_dag.py --source all --mode demo
 
-# Start the serving API
+# Run the dbt transform layer
+cd transform
+dbt deps
+dbt build
+dbt docs generate
+dbt docs serve
+
+# Start the API
 uvicorn serving.api:app --reload
-
-# Run all tests
-pytest tests/
-
-# Generate dbt docs
-cd transform && dbt docs generate && dbt docs serve
 ```
 
----
+Endpoints once running:
+- `http://localhost:8000/docs` — interactive API documentation
+- `http://localhost:8000/metrics` — the governed metric registry
+- `http://localhost:8000/health/metrics-audit` — governance score
 
-## Demo dataset
+## Project structure
 
-The platform ships with a public aviation operations dataset (sourced from OpenFlights + BTS) as the default demo input. This illustrates the fragmentation problem concretely: two sources, different schemas, conflicting route identifiers, and inconsistent delay categorisation which is unified by the platform into a single trusted operational view.
+```
+tessera-data-platform/
+├── ingestion/          # Source connectors, schema registry
+├── validation/         # Contract engine, quality checks
+├── transform/          # dbt project — staging → intermediate → marts
+├── serving/            # FastAPI metric store and lineage endpoints
+├── observability/      # Lineage tracker, pipeline monitors
+├── orchestration/      # Prefect pipeline definitions
+├── config/             # sources.yaml, metrics.yaml, contracts.yaml
+├── docs/
+│   ├── decisions/      # Architecture Decision Records
+│   └── case-studies/   # Real fragmentation problems, anonymised
+├── tests/              # pytest suite
+└── data/               # Demo data generator
+```
 
-**The aviation dataset is illustrative. The architecture cuts across:**
-- Energy: multi-site consumption + pricing feeds with conflicting unit definitions
-- Fintech: transaction systems with market-level rule variations
-- Healthcare: patient data across clinic systems with no shared identifier
+## Demo data
 
----
+The platform ships with aviation operations data as the default demo input. Two CSV sources that deliberately disagree with each other — different identifier formats, intentional null values, conflicting status codes. The platform's job is to make sense of them.
 
-## Case studies
+The aviation data is illustrative. The same architecture pattern applies to energy, fintech, healthcare, and any sector where enterprise data arrives fragmented.
 
-See [`/docs/case-studies/`](docs/case-studies/) for anonymised write-ups of real fragmented data environments this architecture pattern was built to solve.
+## Design decisions
 
----
+The `docs/decisions/` folder contains four Architecture Decision Records explaining why this platform was built the way it was:
 
-## What this demonstrates
+- ADR-001: Why contracts are defined in YAML, not in code
+- ADR-002: Why DuckDB for local transform
+- ADR-003: Why Prefect instead of Airflow
+- ADR-004: Why the metric store sits separately from the reporting layer
 
-- **Data contracts as configuration** — validation rules defined in YAML, not buried in transformation code
-- **Metric governance** — every KPI has an owner, a definition, and a test. No undocumented metrics.
-- **Layer separation** — ingestion, validation, transform, and serving are independently deployable and testable
-- **Production discipline** — structured failure logging, retry logic, lineage tracking, and schema versioning from day one
-- **Data as a product** — outputs exposed as versioned API endpoints, not just files or tables
+These exist because the design choices matter as much as the code. If you are reviewing this project as a hiring manager or fellow engineer, the ADRs explain the thinking.
 
----
+## Case study
 
-## Author
+`docs/case-studies/multi-market-fragmentation.md` walks through a real production problem this architecture pattern was built to solve. Anonymised, but every detail is from work I have actually done.
 
-**Wanjiru Ndung'u** — Data Engineer
+## About
 
-I build scalable data systems, metric layers and decision infrastructure for enterprise analytics and applied data science. My work sits at the intersection of data engineering, analytics engineering and business problem-solving — structuring messy source data, designing reliable transformation workflows, improving data quality, standardising metric logic, and building systems that make analysis more trusted, reusable and decision-ready.
+I am a Data Engineer based in Dubai. I build the systems that sit underneath enterprise analytics. This platform reflects how I think about that work fragmented data as the central problem, governance as the central solution, layers that each do one thing.
 
-Currently extending public proof in data engineering, analytics engineering, forecasting, experimentation and governance-minded data systems. 
+If you are hiring for senior data engineering or analytics engineering roles where the data environment is genuinely complex, I would like to talk.
 
 [LinkedIn](https://www.linkedin.com/in/junewanjirundungu/) · [GitHub](https://github.com/Wanjicodes)

@@ -12,8 +12,8 @@ this platform was built to solve:
   - aviation_routes.csv      (route master data, source B)
 
 The two sources use different identifiers for the same routes,
-requiring the platform's canonical model to reconcile them —
-this is intentional. It demonstrates the fragmentation problem
+requiring the platform's canonical model to reconcile them which
+is intentional. It demonstrates the fragmentation problem
 concretely, not hypothetically.
 """
 

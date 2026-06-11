@@ -10,9 +10,9 @@
 
 A regional enterprise operating across 12 markets had accumulated a data environment that was technically functional but practically unusable for decision-making.
 
-Each market had its own CRM system. Each system had its own field naming conventions. The same business concept — a "converted customer" — was defined differently in 7 of the 12 markets, and 3 of those markets had changed their definition mid-year without updating downstream reports.
+Each market had its own CRM system. Each system had its own field naming conventions. The same business concept where a "converted customer" was defined differently in 7 of the 12 markets, and 3 of those markets had changed their definition mid-year without updating downstream reports.
 
-The consequence: the regional leadership team was receiving monthly performance reports where the same KPI showed different numbers depending on which system it was pulled from. Finance and marketing were in regular disagreement about whether performance was improving or declining — both were technically correct given their respective data sources.
+The consequence: the regional leadership team was receiving monthly performance reports where the same KPI showed different numbers depending on which system it was pulled from. Finance and marketing were in regular disagreement about whether performance was improving or declining but both were technically correct given their respective data sources.
 
 No one trusted the data. Decisions were being made on gut feel, or delayed until someone could manually reconcile the numbers.
 
@@ -52,11 +52,11 @@ The transformation layer was rebuilt with full lineage tracking. Any output coul
 ## The outcome
 
 - A single source of truth for 4 enterprise clients across 12 markets, running on a repeatable, automated pipeline
-- Contract validation catching data quality issues at ingestion — before they reached stakeholders
-- Metric definitions documented and versioned — disagreements resolved by reference, not by debate
-- Pipeline observable end to end — failures surfaced immediately with structured logs rather than silent corruption
+- Contract validation catching data quality issues at ingestion even before they reached stakeholders
+- Metric definitions documented and versioned to ensure disagreements are resolved by reference, and not by debate
+- Pipeline observable end to end failures surfaced immediately with structured logs rather than silent corruption
 
-The platform did not eliminate data quality problems upstream. It made them visible, contained, and fixable — which is the realistic goal in complex, multi-system environments.
+The platform did not eliminate data quality problems upstream. It made them visible, contained, and fixable which is the realistic goal in complex, multi-system environments.
 
 ---
 

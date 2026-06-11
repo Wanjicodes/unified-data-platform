@@ -7,9 +7,9 @@
 Use DuckDB as the local OLAP engine for the transform layer, with dbt on top.
 
 ## Rationale
-- **Zero infrastructure**: DuckDB runs in-process — no server, no connection management, no Docker dependency for local development
-- **Columnar performance**: DuckDB is optimised for analytical queries (aggregations, window functions) — the transform layer's primary workload
-- **dbt compatibility**: dbt supports DuckDB natively, so the transform layer can be migrated to Snowflake, BigQuery, or Redshift by changing the dbt profile — no SQL rewrites required
+- **Zero infrastructure**: DuckDB runs in-process with no server, no connection management, no Docker dependency for local development
+- **Columnar performance**: DuckDB is optimised for analytical queries (aggregations, window functions) as the transform layer's primary workload
+- **dbt compatibility**: dbt supports DuckDB natively, so the transform layer can be migrated to Snowflake, BigQuery, or Redshift by changing the dbt profile with no SQL rewrites required
 - **Reproducibility**: any contributor can clone the repo and run `dbt run` immediately, with no database setup
 
 ## Consequence
@@ -26,7 +26,7 @@ DuckDB is for development and moderate-scale production. If the platform exceeds
 Use Prefect for pipeline orchestration instead of Apache Airflow.
 
 ## Rationale
-- **Setup overhead**: Airflow requires a metadata database, scheduler, webserver, and worker — typically 4+ services. Prefect runs with `prefect server start` or connects to Prefect Cloud with zero local infrastructure
+- **Setup overhead**: Airflow requires a metadata database, scheduler, webserver, and worker typically 4+ services. Prefect runs with `prefect server start` or connects to Prefect Cloud with zero local infrastructure
 - **Python-native**: Prefect flows are standard Python functions decorated with `@flow` and `@task` — no DAG DSL to learn, no templating language, no XCom workarounds
 - **Dynamic flows**: Prefect handles dynamic task generation (e.g. one task per source) naturally. Airflow requires complex patterns to achieve the same
 - **Stack versatility signal**: Most candidates default to Airflow. Using Prefect demonstrates that tool selection is based on requirements, not convention
@@ -45,7 +45,7 @@ Engineers familiar only with Airflow will have a short ramp-up. Prefect's docume
 Maintain a dedicated metric store (`config/metrics.yaml` + `MetricStore` class) that is the authoritative source of metric definitions, separate from any reporting or dashboard layer.
 
 ## Rationale
-- **The core problem this platform solves** is fragmented, conflicting data definitions. A metric store is the structural solution to that problem — not a reporting convenience
+- **The core problem this platform solves** is fragmented, conflicting data definitions. A metric store is the structural solution to that problem so it is not a reporting convenience
 - Without a metric store, metric definitions live in: dashboard filters, spreadsheet formulas, analyst notebooks, and verbal agreements. They diverge silently
 - With a metric store, every metric has exactly one definition, one owner, and one version. Disagreements about what a number means are resolved by reading the store, not by escalating to a meeting
 - The API's `/metrics/{name}` endpoint enforces this: if a metric is not in the store, it cannot be served. This creates the right incentive — register your metrics properly or they will not appear in outputs

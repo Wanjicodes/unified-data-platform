@@ -4,16 +4,16 @@
 # dbt looks for this file to know how to compile and run models.
 #
 # Three concepts to understand:
-#   1. The 'name' is the project namespace — referenced when calling models with ref()
+#   1. The 'name' is the project namespace referenced when calling models with ref()
 #   2. 'profile' tells dbt which connection to use (defined in profiles.yml)
 #   3. The 'models' section defines materialisation strategies per layer
 
-name: 'unified_data_platform'
+name: 'tessera_data_platform'
 version: '1.0.0'
 config-version: 2
 
 # This profile must match an entry in ~/.dbt/profiles.yml or local profiles.yml
-profile: 'unified_data_platform'
+profile: 'tessera_data_platform'
 
 # Where dbt looks for files of each type
 model-paths: ["models"]
@@ -32,11 +32,11 @@ clean-targets:
 # Materialisation strategy per layer
 #   - staging: views (cheap, always reflect current source state)
 #   - intermediate: ephemeral or views (compiled into downstream models, no physical table)
-#   - marts: tables (materialised — fast to query, refreshed on dbt run)
+#   - marts: tables (materialised fast to query, refreshed on dbt run)
 #
-# This is a standard production pattern — staging is light, marts are persistent.
+# This is a standard production pattern where staging is light, marts are persistent.
 models:
-  unified_data_platform:
+  tessera_data_platform:
     staging:
       +materialized: view
       +schema: staging

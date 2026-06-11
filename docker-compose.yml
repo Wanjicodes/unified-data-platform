@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
 
-  # Prefect server — pipeline orchestration UI
+  # Prefect server : pipeline orchestration UI
   prefect-server:
     image: prefecthq/prefect:2-latest
     command: prefect server start --host 0.0.0.0
@@ -16,7 +16,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # Platform API — metric store and lineage endpoints
+  # Platform API : metric store and lineage endpoints
   platform-api:
     build: .
     command: uvicorn serving.api:app --host 0.0.0.0 --port 8000 --reload
@@ -31,7 +31,7 @@ services:
       prefect-server:
         condition: service_healthy
 
-  # Pipeline runner — one-shot execution
+  # Pipeline runner : one-shot execution
   pipeline:
     build: .
     command: python orchestration/pipeline_dag.py --source all --mode demo

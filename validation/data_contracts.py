@@ -3,11 +3,11 @@ data_contracts.py
 
 Contract-based validation engine.
 
-Data contracts are defined in config/contracts.yaml — not in code.
+Data contracts are defined in config/contracts.yaml not in code.
 This separation is intentional: business rules should be readable
 and editable by anyone, not buried in Python files.
 
-A contract failure is not an exception — it is a structured result
+A contract failure is not an exception but a structured result
 that gets logged, routed, and acted on. The pipeline continues.
 """
 
@@ -93,11 +93,11 @@ class DataContractEngine:
     def validate(self, source_id: str, df: pd.DataFrame) -> ContractResult:
         """
         Run all contract rules defined for this source_id.
-        Returns a ContractResult — never raises.
+        Returns a ContractResult but never raises.
         """
         rules = self._contracts.get(source_id, [])
         if not rules:
-            logger.warning(f"[{source_id}] No contract defined — skipping validation")
+            logger.warning(f"[{source_id}] No contract defined hence skipping validation")
             return ContractResult(source_id=source_id, passed=True, records_checked=len(df))
 
         violations = []

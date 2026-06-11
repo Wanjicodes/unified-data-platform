@@ -1,6 +1,6 @@
 # transform/
 
-The dbt transform layer of the unified data platform.
+The dbt transform layer of the tessera data platform.
 
 This is where raw, validated source data becomes governed, decision-ready outputs.
 
@@ -39,25 +39,25 @@ dbt docs serve
 ## How the layers work
 
 ### `models/staging/`
-**One model per source.** Light cleaning only — rename, type cast, remove obviously invalid rows. No business logic, no joins, no aggregation. Materialised as views.
+**One model per source.** Light cleaning only, rename, type cast, remove obviously invalid rows. No business logic, no joins, no aggregation. Materialised as views.
 
 ### `models/intermediate/`
-**Reusable building blocks.** Where business rules are applied (e.g. the OTP threshold of 15 minutes). Where sources are reconciled (e.g. matching the two route_id formats). Materialised as ephemeral — compiled into downstream models rather than persisted.
+**Reusable building blocks.** Where business rules are applied (e.g. the OTP threshold of 15 minutes). Where sources are reconciled (e.g. matching the two route_id formats). Materialised as ephemeral and compiled into downstream models rather than persisted.
 
 ### `models/marts/`
-**Decision-ready outputs.** Aggregated to a clear grain (e.g. one row per route per day). Get queried directly by dashboards and APIs. Every metric here corresponds to a definition in `config/metrics.yaml` — that registry is the source of truth, this layer is one of the places those definitions are physically computed.
+**Decision-ready outputs.** Obviously aggregated to a clear grain (e.g. one row per route per day). These get queried directly by dashboards and APIs. Every metric here corresponds to a definition in `config/metrics.yaml` and that registry is the source of truth, this layer is one of the places those definitions are physically computed.
 
 ## Why this structure matters
 
 The staging-intermediate-marts pattern is the standard approach in production analytics engineering, and there are concrete reasons:
 
-- **Lineage is obvious.** Anyone reading the code can see how a number was built — staging shows what the source looks like, intermediate shows the business rules, marts show the final aggregation.
+- **Lineage is obvious.** Anyone reading the code can see how a number was built, staging shows what the source looks like, intermediate shows the business rules, finally marts show the final aggregation.
 
 - **Changes are local.** If a source column gets renamed, you change it in staging and downstream models keep working. If a business rule changes (e.g. the OTP threshold moves to 10 minutes), you change it in intermediate.
 
 - **Testing happens at every layer.** Bugs get caught at the layer closest to where they originate, not after they've corrupted final outputs.
 
-- **The same project moves to any warehouse.** This dbt project runs on DuckDB locally. It would run on Snowflake, BigQuery, or Postgres in production with only a profile change — the model code itself is portable.
+- **The same project moves to any warehouse.** This dbt project runs on DuckDB locally. It would run on Snowflake, BigQuery, or Postgres in production with only a profile change while the model code itself is portable.
 
 ## Files worth reading first
 

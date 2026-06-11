@@ -9,11 +9,11 @@ Each metric has:
   - A calculation definition
   - Thresholds for alerting
   - A refresh cadence
-  - A version (definitions change — this tracks when and why)
+  - A version (definitions change so this tracks when and why)
 
 This is not a reporting layer. This is a governance layer.
 The metric store answers: "What does this number mean, who owns it,
-and how was it calculated?" — questions that fragmented data environments
+and how was it calculated?" which are questions that fragmented data environments
 can never answer without it.
 """
 
@@ -65,10 +65,10 @@ class MetricStore:
     a governed interface for querying and listing metrics.
 
     Why a metric store?
-    In fragmented environments, the same metric gets defined
-    differently in different places — finance calculates retention
-    differently from marketing, and both differ from ops.
-    The metric store makes one definition the authority.
+    In fragmented environments, the same metric gets defined differently
+    in different places where teams in finance calculate retention
+    differently from marketing teams, and both differ from ops teams.
+    So, the metric store makes one definition the authority.
     """
 
     def __init__(self, config_path: Path = CONFIG_PATH):
@@ -100,7 +100,7 @@ class MetricStore:
     def get(self, metric_name: str) -> Optional[MetricDefinition]:
         metric = self._metrics.get(metric_name)
         if not metric:
-            logger.warning(f"MetricStore: '{metric_name}' not found — is it defined in metrics.yaml?")
+            logger.warning(f"MetricStore: '{metric_name}' not found is it defined in metrics.yaml?")
         return metric
 
     def list_all(self) -> list[MetricDefinition]:
@@ -113,7 +113,7 @@ class MetricStore:
         return [m for m in self._metrics.values() if m.owner == owner]
 
     def to_dataframe(self) -> pd.DataFrame:
-        """Export the full metric registry as a DataFrame — useful for audits."""
+        """Export the full metric registry as a DataFrame making it useful for audits."""
         return pd.DataFrame([m.to_dict() for m in self._metrics.values()])
 
     def validate_metric_exists(self, metric_name: str) -> bool:
@@ -126,6 +126,6 @@ class MetricStore:
         if not exists:
             logger.error(
                 f"Metric '{metric_name}' is referenced but not registered in the metric store. "
-                f"This is a governance violation — add it to config/metrics.yaml."
+                f"This is a governance violation meaning add it to config/metrics.yaml."
             )
         return exists
